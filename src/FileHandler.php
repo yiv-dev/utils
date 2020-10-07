@@ -1,6 +1,6 @@
 <?php
 
-namespace YIVDEV\FILEHANDLER\File;
+namespace YIVDEV\FILEHANDLER;
 
 /**
  * FileHandler class to handle the file operations
