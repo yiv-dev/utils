@@ -1,0 +1,29 @@
+{
+  "name": "yiv-dev/filehandler",
+  "description": "helps operate the files",
+  "type": "php-helper",
+  "license": "GPL-3.0",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/yiv-dev/filehandler"
+    }
+  ],
+  "authors": [
+    {
+      "name": "YIV",
+      "email": "yugaev@gmail.com"
+    }
+  ],
+  "require-dev": {},
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "YIVDEV\\FILEHANDLER\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=7.2.0",
+    "phpunit/phpunit": "^9"
+  }
+}
