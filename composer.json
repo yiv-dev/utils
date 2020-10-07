@@ -6,7 +6,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/yiv-dev/filehandler"
+      "url": "https://github.com/yiv-dev/utils"
     }
   ],
   "authors": [
