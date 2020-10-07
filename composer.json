@@ -22,7 +22,6 @@
     }
   },
   "require": {
-    "php": ">=7.2.0",
-    "phpunit/phpunit": "^9"
+    "php": ">=7.2.0"
   }
 }
