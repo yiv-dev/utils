@@ -1,149 +1,98 @@
 <?php
 
-namespace YIVDEV\FILEHANDLER;
+namespace YIVDEV\UTILS;
 
 /**
- * FileHandler class to handle the file operations
+ * Utils class to handle the different useful operations
  */
-class FileHandler
+class Utils
 {
     /**
-     * save_file function
+     * slugify function
      *
-     * @param string $filePath
-     * @param [type] $data
-     * @return String
+     * @param string $text
+     * @return string
      */
-    public static function save_file(string $filePath, $data): String
+    public static function slugify(string $text): string
     {
         try {
-            $fp = fopen($filePath, 'w');
-            fwrite($fp, $data);
-            fclose($fp);
+            // lowercase
+            $text = strtolower($text);
 
-            return $filePath;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage);
-        }
-    }
+            // replace non letter or digits by -
+            $text = preg_replace('~[^\pL\d]+~u', '-', $text);
 
-    /**
-     * clean_dir function
-     * delete all the files in the directory
-     *
-     * @param String $dir_name
-     * @return boolean
-     */
-    public static function clean_dir(String $dir_name): bool
-    {
-        try {
-            array_map('unlink', array_filter((array) glob($dir_name . DIRECTORY_SEPARATOR . '*')));
-            return true;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage);
-        }
-    }
+            // transliterate
+            $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
 
-    /**
-     * clean_older_then function
-     * delete all the files older then $days parameter
-     *
-     * @param String $dir_name
-     * @param Int $days
-     * @return boolean
-     */
-    public static function clean_older_then(String $dir_name, Int $days): bool
-    {
-        try {
-            $files = glob($dir_name . DIRECTORY_SEPARATOR . '*');
-            $now   = time();
+            // remove unwanted characters
+            $text = preg_replace('~[^-\w]+~', '', $text);
 
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    if ($now - filemtime($file) >= 60 * 60 * 24 * $days) {
-                        unlink($file);
-                    }
-                }
+            // trim
+            $text = trim($text, '-');
+
+            // remove duplicate -
+            $text = preg_replace('~-+~', '-', $text);
+
+            if (empty($text)) {
+                return 'n-a';
             }
-            return true;
+
+            return $text;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage);
         }
     }
 
     /**
-     * create_dir_if_not_exist function
+     * encode function
      *
-     * @param String $dir_name
-     * @return boolean
+     * @param string $content
+     * @param string $cipher
+     * @param string $key
+     * @return string
      */
-    public static function create_dir_if_not_exist(String $dir_name): bool
+    public static function encode(string $content, string $cipher, string $key): string
     {
         try {
-            if (!file_exists($dir_name)) {
-                mkdir($dir_name, 0777, true);
-            }
-            return true;
+            $ivlen = openssl_cipher_iv_length($cipher);
+            $iv = openssl_random_pseudo_bytes($ivlen);
+            $ciphertext_raw = openssl_encrypt($content, $cipher, $key, $options = OPENSSL_RAW_DATA, $iv);
+            $hmac = hash_hmac('sha256', $ciphertext_raw, $key, $as_binary = true);
+            $result_content = base64_encode($iv . $hmac . $ciphertext_raw);
+
+            return $result_content;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage);
         }
     }
 
     /**
-     * Zip the array of the files function
+     * decode function
      *
-     * @param array $files
-     * @return String
+     * @param string $encoded_content
+     * @param string $cipher
+     * @param string $key
+     * @return string
      */
-    public static function zip_files(array $files): String
+    public static function decode(string $encoded_content, string $cipher, string $key): string
     {
         try {
-            $zip = new \ZipArchive();
-
-            //make the temp dir
-            $tempfile = tempnam(sys_get_temp_dir(), '');
-            if (file_exists($tempfile)) {
-                unlink($tempfile);
+            $encoded = base64_decode($encoded_content);
+            $ivlen = openssl_cipher_iv_length($cipher);
+            $iv = substr($encoded, 0, $ivlen);
+            $hmac = substr($encoded, $ivlen, $sha2len = 32);
+            $ciphertext_raw = substr($encoded, $ivlen + $sha2len);
+            $original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $key, $options = OPENSSL_RAW_DATA, $iv);
+            $calcmac = hash_hmac('sha256', $ciphertext_raw, $key, $as_binary = true);
+            if (hash_equals($hmac, $calcmac)) {
+                $result_config = json_decode($original_plaintext);
+                return $result_config;
+            } else {
+                throw new \Exception('WRONG KEY');
             }
-            mkdir($tempfile);
-
-            //let`s make the zip archive
-            $dir = $tempfile;
-            $filename = 'file-' . date('Y-m-d--H:i:s') . uniqid() . '.zip';
-            $pathToZipFile = $dir . DIRECTORY_SEPARATOR . $filename;
-            $zip->open($pathToZipFile, \ZipArchive::CREATE);
-            foreach ($files as $file) {
-                $zip->addFile($file, basename($file));
-            }
-            $zip->close();
-
-            return $pathToZipFile;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage);
         }
-    }
-
-    /**
-     * Get file name without extention function
-     *
-     * @param [type] $filename
-     * @return String
-     */
-    public static function getFileNameWOExtension(String $filename): string
-    {
-        $ext = self::getExtension($filename);
-        return basename($filename, '.' . $ext);
-    }
-
-    /**
-     * getExtension function
-     * Get the extention of the filename
-     *
-     * @param String $filename
-     * @return String
-     */
-    public static function getExtension(String $filename): String
-    {
-        return substr(strrchr($filename, '.'), 1);
     }
 }

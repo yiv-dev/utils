@@ -1,11 +1,11 @@
-# Filehandler
+# Utils
 
-## Helps operate the files
+## Helps operate with slugs, crypt
 
 ```
-use YIVDEV\FILEHANDLER\Filehandler
+use YIVDEV\UTILS\Utils
 
-Filehandler::save_file($filePath, $content);
+Utils::save_file($filePath, $content);
 
 ```
 

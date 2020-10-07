@@ -1,6 +1,6 @@
 {
-  "name": "yiv-dev/filehandler",
-  "description": "helps operate the files",
+  "name": "yiv-dev/utils",
+  "description": "helps operate with slugs, crypt",
   "type": "php-helper",
   "license": "GPL-3.0",
   "repositories": [
