@@ -73,9 +73,9 @@ class Utils
      * @param string $encoded_content
      * @param string $cipher
      * @param string $key
-     * @return string
+     * 
      */
-    public static function decode(string $encoded_content, string $cipher, string $key): string
+    public static function decode(string $encoded_content, string $cipher, string $key)
     {
         try {
             $encoded = base64_decode($encoded_content);
