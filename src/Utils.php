@@ -40,7 +40,7 @@ class Utils
 
             return $text;
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage);
+            throw $e;
         }
     }
 
@@ -63,7 +63,7 @@ class Utils
 
             return $result_content;
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage);
+            throw $e;
         }
     }
 
@@ -73,7 +73,7 @@ class Utils
      * @param string $encoded_content
      * @param string $cipher
      * @param string $key
-     * 
+     * @return string|\Exception
      */
     public static function decode(string $encoded_content, string $cipher, string $key)
     {
@@ -89,10 +89,10 @@ class Utils
                 $result_config = json_decode($original_plaintext);
                 return $result_config;
             } else {
-                throw new \Exception('WRONG KEY');
+                throw new \Exception('CAN`T BE DECODED');
             }
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage);
+            throw $e;
         }
     }
 }
